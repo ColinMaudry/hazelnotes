@@ -1,7 +1,7 @@
 from peewee import *
 from main import APP_DIR
 
-db = SqliteDatabase(APP_DIR / "hazelnotes.db")
+db: SqliteDatabase = SqliteDatabase(APP_DIR / "hazelnotes.db")
 
 
 class Note(Model):
@@ -11,7 +11,7 @@ class Note(Model):
     filename = CharField(max_length=200, default="")
 
     def __str__(self):
-        return f"{self.title} ({self.creation_date})"
+        return f"[{self.id}] {self.title} ({self.creation_date})"
 
     class Meta:
         database = db

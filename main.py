@@ -1,6 +1,7 @@
 import typer
 from pathlib import Path
 from os import mkdir
+from os import remove
 import subprocess
 from classes import *
 import datetime
@@ -74,7 +75,7 @@ def init():
     if not MARKDOWN_DIR.is_dir():
         mkdir(MARKDOWN_DIR)
     else:
-        print(str(APP_DIR) + "/notes directory already exists")
+        print(str(MARKDOWN_DIR) + "directory already exists")
 
 
 @app.command("open")
@@ -83,6 +84,34 @@ def open_note(note_id: str = typer.Argument(..., help="The id of the note to ope
     Opens the note in the configured editor.
     """
     open_note_file(note_id)
+
+
+@app.command("list")
+def list_notes():
+    """
+    Displays a list of the last created notes.
+    """
+
+    db.connect()
+    notes: list[Note] = Note.select().order_by(Note.creation_date.desc()).limit(20)
+    db.close()
+
+    for note in notes:
+        print(note)
+
+
+@app.command()
+def delete(note_id: str = typer.Argument(..., help="The id of the note to delete.")):
+    db.connect()
+    note: Note = Note.get_by_id(note_id)
+
+    markdown_path = MARKDOWN_DIR / note.filename
+    if markdown_path.is_file():
+        remove(markdown_path)
+    else:
+        print(str(markdown_path) + " doesn't exist. No file was removed.")
+    note.delete_instance()
+    db.close()
 
 
 def open_note_file(note_id: str):
