@@ -79,25 +79,24 @@ def init():
 
 
 @app.command("open")
-def open_note(note_id: str = typer.Argument(..., help="The id of the note to open.")):
+def open_note(note_id: str = typer.Argument(help="The id of the note to open.", default="")):
     """
     Opens the note in the configured editor.
     """
+    if note_id == "":
+        list_notes()
+        note_id = typer.prompt("Which [id] do you want to edit?")
+
     open_note_file(note_id)
 
 
 @app.command("list")
-def list_notes():
+def list_notes_command():
     """
     Displays a list of the last created notes.
     """
 
-    db.connect()
-    notes: list[Note] = Note.select().order_by(Note.creation_date.desc()).limit(20)
-    db.close()
-
-    for note in notes:
-        print(note)
+    list_notes()
 
 
 @app.command()
@@ -116,13 +115,35 @@ def delete(note_id: str = typer.Argument(..., help="The id of the note to delete
 
 def open_note_file(note_id: str):
     # Get the note from the database
-    db.connect()
-    note = Note.get_by_id(note_id)
-    db.close()
+    try:
+        assert int(note_id) > 0
+    except ValueError:
+        print("The note id must be an integer.")
+        raise typer.Exit(1)
+
+    if db.is_closed():
+        db.connect()
+        try:
+            note = Note.get_by_id(note_id)
+        except (IndexError, DoesNotExist):
+            print(f"This note id doesn't exist: {note_id}")
+            raise typer.Exit(1)
+
+    if not db.is_closed():
+        db.close()
 
     # Open it in the configured editor
     markdown_path = MARKDOWN_DIR / note.filename
     subprocess.run([EDITOR_COMMAND, markdown_path])
+
+
+def list_notes():
+    db.connect()
+    notes: list[Note] = Note.select().order_by(Note.creation_date.desc()).limit(20)
+    db.close()
+
+    for note in notes:
+        print(note)
 
 
 if __name__ == "__main__":
