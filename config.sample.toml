@@ -1,0 +1,6 @@
+
+# The directory where you want to store your local hazlonotes data: database and markdown files
+app_directory = "/home/user/.config/hazelnotes"
+
+# The command that starts the text editor you want to use for local markdown files
+local_editor_command = "nano"

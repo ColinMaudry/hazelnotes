@@ -1,7 +1,7 @@
 from peewee import *
-from main import APP_DIR
+from app_config import config
 
-db: SqliteDatabase = SqliteDatabase(APP_DIR / "hazelnotes.db",
+db: SqliteDatabase = SqliteDatabase(config["data_directory"] / "hazelnotes.db",
                                     pragmas={'foreign_keys': 1})
 
 
@@ -23,4 +23,3 @@ class NoteTag(Model):
 
     class Meta:
         database = db
-
