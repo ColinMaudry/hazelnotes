@@ -5,7 +5,6 @@ from rich.table import Table
 import pandas as pd
 import typer
 
-from app_config import config
 from classes import *
 
 

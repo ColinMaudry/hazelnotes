@@ -146,4 +146,4 @@ def delete(note_id: str = typer.Argument(..., help="The id of the note to delete
 
 
 if __name__ == "__main__":
-    typer.run(typer_app)
+    typer_app()
