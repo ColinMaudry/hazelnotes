@@ -6,14 +6,14 @@ import pandas as pd
 import typer
 from peewee import ModelSelect, DoesNotExist
 
-from classes import *
+from hazelnotes.classes import *
 
 
-def open_note_file(note: Note):
+def open_note_locally(note: Note):
     if note.filename:
         # Open it in the configured editor
-        markdown_path = config["md_directory"] / note.filename
-        subprocess.run([config["local_editor_command"], markdown_path])
+        markdown_path = conf["md_directory"] / note.filename
+        subprocess.run([conf["local_editor_command"], markdown_path])
     else:
         print("This note doesn't have a local copy.")
         typer.Exit(1)
@@ -36,10 +36,6 @@ def list_notes(table_title: str = None, notes: list = None):
         close_db(db)
 
     console = Console()
-
-    if len(notes) == 0:
-        print("There are not notes to display.")
-        raise typer.Exit()
 
     table = Table("id", "title", "creation date", "tags", title=table_title, title_justify='left')
     for note in notes:
@@ -83,6 +79,33 @@ def to_aggregated_list(notes_query, sort_by, ascending=False):
     return notes_list
 
 
+def open_note(note: Note):
+    # ConnectionError is also in peewee
+    from requests import head, ConnectionError as requestsConnectionError
+    import webbrowser
+    import multiprocessing
+    from time import sleep
+
+    try:
+        # Test internet connection
+        print("test internet")
+        head(conf["hedgedoc_url"], timeout=1)
+
+        # Open note in the browser if not testing
+        if os.environ["RUN_ENV"] != "test":
+            x = lambda: webbrowser.open(note.url + "?both", new=0)
+            proc = multiprocessing.Process(target=x, args=())
+            proc.start()
+            sleep(1)
+            # Terminate the process
+            proc.terminate()
+
+    except requestsConnectionError:
+        # No internet, open the file in the local editor
+        print("No internet connection, attempt to open the file locally")
+        open_note_locally(note)
+
+
 def create_web_note(text: str) -> str:
     """
     Create a note in HedgeDoc using user input.
@@ -93,7 +116,7 @@ def create_web_note(text: str) -> str:
     import requests
 
     try:
-        r = requests.post(config["hedgedoc_url"] + "/new",
+        r = requests.post(conf["hedgedoc_url"] + "/new",
                           headers={"Content-Type": "text/markdown"},
                           data=text,
                           )

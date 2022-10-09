@@ -1,10 +1,9 @@
 from pathlib import Path
-from os import mkdir
-from os import remove
+from os import mkdir, remove
 
 from slugify import slugify
 
-from helpers import *
+from hazelnotes.helpers import *
 
 typer_app = typer.Typer(help="A command line note manager. Nuts included."
                              "\n\n"
@@ -19,7 +18,7 @@ def create(
                                    help="Comma-separated list of tags that will help you find the note later.")
 ):
     """
-    Creates a new markdown file for a note, adds the note to the database and opens the markdown file in the editor.
+    Creates a new note, adds the note to the database and opens the markdown file in HedgeDoc.
     """
 
     creation_date: datetime.datetime = datetime.datetime.now()
@@ -34,17 +33,16 @@ def create(
 
     markdown_text = f"# {creation_date.date()} {title}\n\n"
 
-
     # Create the note
-
     note_url = create_web_note(markdown_text)
+    print("note url:", note_url)
 
-    if note_url != "":
+    if note_url != "" and os.environ["RUN_ENV"] != "test":
         new_note.url = note_url
 
     else:
         markdown_filename = f"{str(new_note.get_id()):0>5}_{slugify(title)}.md"
-        markdown_path = config["md_directory"] / markdown_filename
+        markdown_path = conf["md_directory"] / markdown_filename
 
         file = open(markdown_path, "a")
         file.write(markdown_text)
@@ -66,7 +64,7 @@ def create(
 
     close_db(db)
 
-    open_note_file(note_id)
+    open_note(new_note)
 
 
 @typer_app.command()
@@ -76,30 +74,28 @@ def init():
     """
 
     # Create the app config dir (typically ~/.config/hazelnotes)
-    if not (config["data_directory"].is_dir()):
-        mkdir(config["data_directory"])
+    if not (conf["data_directory"].is_dir()):
+        mkdir(conf["data_directory"])
 
-    if not (Path(config["data_directory"]) / "hazelnotes.db").is_file():
+    print(db_file, db)
+    if not db_file.is_file():
         connect_db(db)
         db.create_tables([Note, NoteTag])
         close_db(db)
     else:
-        print(str(config["data_directory"]) + "/hazelnotes.db already exists")
+        print(str(conf["data_directory"]) + "/hazelnotes.db already exists")
 
-    if not config["md_directory"].is_dir():
-        mkdir(config["md_directory"])
+    if not conf["md_directory"].is_dir():
+        mkdir(conf["md_directory"])
     else:
-        print(str(config["md_directory"]) + "directory already exists")
+        print(str(conf["md_directory"]) + "directory already exists")
 
 
 @typer_app.command("open")
-def open_note(note_id: str = typer.Argument(help="The id of the note to open.", default="")):
+def open_note_command(note_id: str = typer.Argument(help="The id of the note to open.", default="")):
     """
     Opens the note in the configured editor.
     """
-
-    import webbrowser
-    import requests
 
     if note_id == "":
         list_notes("Last notes")
@@ -118,19 +114,9 @@ def open_note(note_id: str = typer.Argument(help="The id of the note to open.", 
     except (IndexError, DoesNotExist):
         print(f"This note id doesn't exist: {note_id}")
         raise typer.Exit(1)
-
-    try:
-        # Test internet connection
-        requests.head(config["hedgedoc_url"], timeout=1)
-
-        # Open note in the browser
-        webbrowser.open(note.url + "/both", new=2, autoraise=True)
-    except requests.ConnectionError:
-        # No internet, open the file in the local editor
-        print("No internet connection")
-        open_note_file(note)
-
     close_db(db)
+
+    open_note(note)
 
 
 @typer_app.command("list")
@@ -168,7 +154,7 @@ def list_notes_command(t: str = typer.Option(default="", help="Comma-separated l
         list_notes("Last notes")
 
     note_id = typer.prompt("Which [id] do you want to edit?")
-    open_note_file(note_id)
+    open_note_command(note_id)
 
 
 @typer_app.command()
@@ -176,7 +162,7 @@ def delete(note_id: str = typer.Argument(..., help="The id of the note to delete
     connect_db(db)
     note: Note = Note.get_by_id(note_id)
 
-    markdown_path = config["md_directory"] / note.filename
+    markdown_path = conf["md_directory"] / note.filename
     if markdown_path.is_file():
         remove(markdown_path)
     else:

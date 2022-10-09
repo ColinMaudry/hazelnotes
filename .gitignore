@@ -1,7 +1,7 @@
-hazelnotes
 hazelnotes.db
 .env
 .idea
 config
 __pycache__
 /config.toml
+/.pytest_cache/
