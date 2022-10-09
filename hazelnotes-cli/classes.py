@@ -1,4 +1,4 @@
-from peewee import *
+from peewee import Model, CharField, SqliteDatabase, DateTimeField, ForeignKeyField
 from app_config import config
 
 db: SqliteDatabase = SqliteDatabase(config["data_directory"] / "hazelnotes.db",

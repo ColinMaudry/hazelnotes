@@ -102,17 +102,17 @@ def list_notes_command(t: str = typer.Option(default="", help="Comma-separated l
     if len(t) > 0:
         tags: list = t.split(",")
         connect_db(db)
-        notes: Model = Note.select(Note.title,
-                                   Note.creation_date,
-                                   Note.filename,
-                                   NoteTag.note_id,
-                                   NoteTag.tag_text).distinct().join(NoteTag).where(NoteTag.tag_text.in_(tags))
+        notes: ModelSelect = Note.select(Note.title,
+                                         Note.creation_date,
+                                         Note.filename,
+                                         NoteTag.note_id,
+                                         NoteTag.tag_text).distinct().join(NoteTag).where(NoteTag.tag_text.in_(tags))
+
+        check_result_length(notes, f"No note has the following tags: {' and '.join(tags)}")
+
         notes_list: list[dict] = to_aggregated_list(notes, 'creation_date', ascending=False)
 
         close_db(db)
-        if len(notes_list) == 0:
-            print(f"No note has the following tags: {' and '.join(tags)}")
-            raise typer.Exit()
 
         new_list = []
         for note in notes_list:
