@@ -1,6 +1,7 @@
 from pathlib import Path
 from os import mkdir
 from os import remove
+
 from slugify import slugify
 
 from helpers import *
@@ -31,17 +32,27 @@ def create(
         creation_date=creation_date,
     )
 
-    # Create the note file
-    markdown_title = f"# {creation_date.date()} {title}\n\n"
-    markdown_filename = f"{str(new_note.get_id()):0>5}_{slugify(title)}.md"
-    markdown_path = config["md_directory"] / markdown_filename
+    markdown_text = f"# {creation_date.date()} {title}\n\n"
 
-    file = open(markdown_path, "a")
-    file.write(markdown_title)
-    file.close()
 
-    # Update note's filename
-    new_note.filename = markdown_filename
+    # Create the note
+
+    note_url = create_web_note(markdown_text)
+
+    if note_url != "":
+        new_note.url = note_url
+
+    else:
+        markdown_filename = f"{str(new_note.get_id()):0>5}_{slugify(title)}.md"
+        markdown_path = config["md_directory"] / markdown_filename
+
+        file = open(markdown_path, "a")
+        file.write(markdown_text)
+        file.close()
+
+        # Update note's filename
+        new_note.filename = markdown_filename
+
     new_note.save()
 
     note_id = new_note.get_id()
@@ -87,10 +98,39 @@ def open_note(note_id: str = typer.Argument(help="The id of the note to open.", 
     Opens the note in the configured editor.
     """
 
-    if note_id == "":
-        note_id = typer.prompt("Which [id] do you want to edit?")
+    import webbrowser
+    import requests
 
-    open_note_file(note_id)
+    if note_id == "":
+        list_notes("Last notes")
+        raise typer.Exit()
+
+    try:
+        assert int(note_id) > 0
+    except ValueError:
+        print("The note id must be an integer.")
+        raise typer.Exit(1)
+
+    # Get the note from the database
+    try:
+        connect_db(db)
+        note = Note.get_by_id(note_id)
+    except (IndexError, DoesNotExist):
+        print(f"This note id doesn't exist: {note_id}")
+        raise typer.Exit(1)
+
+    try:
+        # Test internet connection
+        requests.head(config["hedgedoc_url"], timeout=1)
+
+        # Open note in the browser
+        webbrowser.open(note.url + "/both", new=2, autoraise=True)
+    except requests.ConnectionError:
+        # No internet, open the file in the local editor
+        print("No internet connection")
+        open_note_file(note)
+
+    close_db(db)
 
 
 @typer_app.command("list")

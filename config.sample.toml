@@ -4,3 +4,6 @@ app_directory = "/home/user/.config/hazelnotes"
 
 # The command that starts the text editor you want to use for local markdown files
 local_editor_command = "nano"
+
+# HedgeDoc base URL (ex : https://hedgedoc.example.com)
+hedgedoc_url = "https://hedgedoc.example.com"

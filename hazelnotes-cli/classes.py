@@ -9,6 +9,7 @@ class Note(Model):
     title = CharField(max_length=200)
     creation_date = DateTimeField()
     filename = CharField(max_length=200, default="")
+    url = CharField(max_length=200, default="")
 
     def __str__(self):
         return f"[{self.id}] {self.title} ({self.creation_date})"

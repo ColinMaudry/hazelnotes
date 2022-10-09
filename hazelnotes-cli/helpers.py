@@ -9,24 +9,14 @@ from peewee import ModelSelect, DoesNotExist
 from classes import *
 
 
-def open_note_file(note_id: str):
-    # Get the note from the database
-    try:
-        assert int(note_id) > 0
-    except ValueError:
-        print("The note id must be an integer.")
-        raise typer.Exit(1)
-
-    try:
-        connect_db(db)
-        note = Note.get_by_id(note_id)
-
+def open_note_file(note: Note):
+    if note.filename:
         # Open it in the configured editor
         markdown_path = config["md_directory"] / note.filename
         subprocess.run([config["local_editor_command"], markdown_path])
-    except (IndexError, DoesNotExist):
-        print(f"This note id doesn't exist: {note_id}")
-        raise typer.Exit(1)
+    else:
+        print("This note doesn't have a local copy.")
+        typer.Exit(1)
 
 
 def list_notes(table_title: str = None, notes: list = None):
@@ -91,3 +81,23 @@ def to_aggregated_list(notes_query, sort_by, ascending=False):
     df.sort_values(by=sort_by, ascending=ascending)
     notes_list: list = df.to_dict(orient='records')
     return notes_list
+
+
+def create_web_note(text: str) -> str:
+    """
+    Create a note in HedgeDoc using user input.
+    :param text: The markdown text to be added in the new note.
+    :return: The url of the created HedgeDoc note.
+    """
+
+    import requests
+
+    try:
+        r = requests.post(config["hedgedoc_url"] + "/new",
+                          headers={"Content-Type": "text/markdown"},
+                          data=text,
+                          )
+    except requests.ConnectionError:
+        return ""
+
+    return r.request.url
