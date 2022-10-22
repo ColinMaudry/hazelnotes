@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hazelnotes-cli"
+version = "0.1.0"
+authors = [
+  { name="Colin Maudry", email="colin@maudry.com" },
+]
+description = "A note manager that uses command line and the HedgeDoc online editor."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/ColinMaudry/hazelnotes"
+"Bug tracker" = "https://github.com/ColinMaudry/hazelnotes/issues"
