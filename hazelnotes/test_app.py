@@ -11,7 +11,7 @@ if test_db.is_file():
 os.environ["RUN_ENV"] = "test"
 
 
-def test_app():
+def test_init_db():
     result = runner.invoke(typer_app, ['init'])
     assert result.exit_code == 0
 
@@ -26,6 +26,8 @@ def test_list_created_note():
     assert result.exit_code == 1
     assert "test note" in result.stdout
     assert "This note id doesn't exist" in result.stdout
+
+
 
 
 
