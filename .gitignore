@@ -1,8 +1,11 @@
 hazelnotes.db
 .env
 .idea
-config
+.config
 __pycache__
 /config.toml
 /.pytest_cache/
 /dist/
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
