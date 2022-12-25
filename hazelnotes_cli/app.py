@@ -3,7 +3,7 @@ from os import mkdir, remove
 
 from slugify import slugify
 
-from hazelnotes.helpers import *
+from hazelnotes_cli.helpers import *
 
 typer_app = typer.Typer(help="A command line note manager. Nuts included."
                              "\n\n"

@@ -6,7 +6,7 @@ import pandas as pd
 import typer
 from peewee import ModelSelect, DoesNotExist
 
-from hazelnotes.classes import *
+from hazelnotes_cli.classes import *
 
 
 def open_note_locally(note: Note):

@@ -2,7 +2,7 @@ from peewee import Model, CharField, SqliteDatabase, DateTimeField, ForeignKeyFi
 import os
 from pathlib import Path
 
-from hazelnotes.app_config import conf
+from hazelnotes_cli.app_config import conf
 
 
 try:

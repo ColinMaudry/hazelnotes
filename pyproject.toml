@@ -1,22 +1,28 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
 
 [project]
-name = "hazelnotes-cli"
-version = "0.0.1"
-authors = [
-  { name="Colin Maudry", email="colin@maudry.com" },
-]
-description = "Command line note manager for HedgeDoc"
+name = "hazelnotes_cli"
+authors = [{name = "Colin Maudry", email = "colin@maudry.com"}]
 readme = "README.md"
-requires-python = ">=3.10"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
+dynamic = ["version", "description"]
+
+dependencies = [
+"typer",
+"peewee",
+"datetime",
+"python-slugify",
+"pandas",
+"toml",
+"requests"
 ]
 
+
 [project.urls]
-"Homepage" = "https://github.com/ColinMaudry/hazelnotes"
-"Bug Tracker" = "https://github.com/ColinMaudry/hazelnotes/issues"
+Home = "https://github.com/ColinMaudry/hazelnotes"
+
+[project.scripts]
+hazelnotes = "hazelnotes_cli.app:typer_app"

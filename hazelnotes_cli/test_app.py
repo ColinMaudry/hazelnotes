@@ -1,6 +1,6 @@
 from typer.testing import CliRunner
 from pathlib import Path
-from hazelnotes.app import conf, typer_app
+from hazelnotes_cli.app import conf, typer_app
 import os
 
 runner = CliRunner()
