@@ -1,14 +1,14 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "hazelnotes-cli"
-version = "0.1.0"
+version = "0.0.1"
 authors = [
   { name="Colin Maudry", email="colin@maudry.com" },
 ]
-description = "A note manager that uses command line and the HedgeDoc online editor."
+description = "Command line note manager for HedgeDoc"
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
@@ -19,4 +19,4 @@ classifiers = [
 
 [project.urls]
 "Homepage" = "https://github.com/ColinMaudry/hazelnotes"
-"Bug tracker" = "https://github.com/ColinMaudry/hazelnotes/issues"
+"Bug Tracker" = "https://github.com/ColinMaudry/hazelnotes/issues"
