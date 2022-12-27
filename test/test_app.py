@@ -1,26 +1,14 @@
 from typer.testing import CliRunner
 from pathlib import Path
-from hazelnotes_cli.app import conf, typer_app
 import os
-import pytest
+from shutil import rmtree
 
-@pytest.fixture
-def init_env():
-    try:
-        os.environ.get('TEST_HAZELNOTE_PROFILE')
-    except KeyError:
-        os.environ['TEST_HAZELNOTE_PROFILE'] = 'test'
-    return os.environ.get('TEST_HAZELNOTE_PROFILE')
+from hazelnotes_cli.app_config import get_config
+from hazelnotes_cli.app import typer_app
 
 runner = CliRunner()
-test_db: Path = conf["data_directory"] / "hazelnotes_test.db"
 
-if test_db.is_file():
-    os.remove(conf["data_directory"] / "hazelnotes_test.db")
-os.environ["RUN_ENV"] = "test"
-
-
-def test_init_db(init_env):
+def test_init_db():
     result = runner.invoke(typer_app, ['init'])
     assert result.exit_code == 0
 
@@ -36,6 +24,10 @@ def test_list_created_note():
     assert "test note" in result.stdout
     assert "This note id doesn't exist" in result.stdout
 
+def test_remove_test_folder():
+    data_dir: Path = get_config("test")["data_directory"]
+    rmtree(data_dir)
+    assert not data_dir.is_dir()
 
 
 
