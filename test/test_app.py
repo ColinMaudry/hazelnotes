@@ -2,6 +2,15 @@ from typer.testing import CliRunner
 from pathlib import Path
 from hazelnotes_cli.app import conf, typer_app
 import os
+import pytest
+
+@pytest.fixture
+def init_env():
+    try:
+        os.environ.get('TEST_HAZELNOTE_PROFILE')
+    except KeyError:
+        os.environ['TEST_HAZELNOTE_PROFILE'] = 'test'
+    return os.environ.get('TEST_HAZELNOTE_PROFILE')
 
 runner = CliRunner()
 test_db: Path = conf["data_directory"] / "hazelnotes_test.db"
@@ -11,7 +20,7 @@ if test_db.is_file():
 os.environ["RUN_ENV"] = "test"
 
 
-def test_init_db():
+def test_init_db(init_env):
     result = runner.invoke(typer_app, ['init'])
     assert result.exit_code == 0
 
