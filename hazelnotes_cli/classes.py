@@ -2,8 +2,9 @@ from peewee import Model, CharField, SqliteDatabase, DateTimeField, ForeignKeyFi
 import os
 from pathlib import Path
 
-from hazelnotes_cli.app_config import conf
+from hazelnotes_cli.app_config import get_config
 
+conf = get_config()
 
 try:
     if os.environ["RUN_ENV"] and os.environ["RUN_ENV"] == "test":

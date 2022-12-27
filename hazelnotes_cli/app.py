@@ -72,6 +72,9 @@ def init():
     """
 
     from os import mkdir
+    from hazelnotes_cli.app_config import get_config
+
+    conf = get_config()
 
     # Create the app config dir (typically ~/.config/hazelnotes)
     if not (conf["data_directory"].is_dir()):
