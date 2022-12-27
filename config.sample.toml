@@ -1,6 +1,16 @@
-
+[default]
 # The directory where you want to store your local hazlonotes data: database and markdown files
 app_directory = "/home/user/.config/hazelnotes"
+
+# The command that starts the text editor you want to use for local markdown files
+local_editor_command = "nano"
+
+# HedgeDoc base URL (ex : https://hedgedoc.example.com)
+hedgedoc_url = "https://hedgedoc.example.com"
+
+[test]
+# Only configure this if you plan to run hazelnotes unit tests (`pytest`)
+app_directory = "/home/user/.config/hazelnotes_test"
 
 # The command that starts the text editor you want to use for local markdown files
 local_editor_command = "nano"
