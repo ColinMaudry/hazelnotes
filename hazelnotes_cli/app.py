@@ -1,8 +1,4 @@
 from pathlib import Path
-from os import mkdir, remove
-
-from slugify import slugify
-
 from hazelnotes_cli.helpers import *
 
 typer_app = typer.Typer(help="A command line note manager. Nuts included."
@@ -20,6 +16,8 @@ def create(
     """
     Creates a new note, adds the note to the database and opens the markdown file in HedgeDoc.
     """
+
+    from slugify import slugify
 
     creation_date: datetime.datetime = datetime.datetime.now()
 
@@ -73,9 +71,14 @@ def init():
     Initializes a new note database and validate the options.
     """
 
+    from os import mkdir
+
     # Create the app config dir (typically ~/.config/hazelnotes)
     if not (conf["data_directory"].is_dir()):
         mkdir(conf["data_directory"])
+    else:
+        print(str(conf["data_directory"]) + " already exists")
+
 
     print(db_file, db)
     if not db_file.is_file():
@@ -88,7 +91,7 @@ def init():
     if not conf["md_directory"].is_dir():
         mkdir(conf["md_directory"])
     else:
-        print(str(conf["md_directory"]) + "directory already exists")
+        print(str(conf["md_directory"]) + " directory already exists")
 
 
 @typer_app.command("open")
@@ -159,6 +162,11 @@ def list_notes_command(t: str = typer.Option(default="", help="Comma-separated l
 
 @typer_app.command()
 def delete(note_id: str = typer.Argument(..., help="The id of the note to delete.")):
+    """
+    Delete note from local files and database. Not from HedgeDoc.
+    """
+    from os import remove
+
     connect_db(db)
     note: Note = Note.get_by_id(note_id)
 
